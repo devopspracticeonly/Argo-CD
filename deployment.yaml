@@ -19,6 +19,6 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: 702147744538.dkr.ecr.us-east-1.amazonaws.com/microservice-demo:32
+        image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:32
         ports:
         - containerPort: 8080
