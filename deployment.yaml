@@ -18,7 +18,7 @@ spec:
 
     spec:
       containers:
-      - name: myapp
+      - name: pod-name
         image: busybox #736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:37
         command:
           - sh
