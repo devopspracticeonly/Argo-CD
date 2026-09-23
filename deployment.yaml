@@ -5,7 +5,7 @@ metadata:
   namespace: default
 
 spec:
-  replicas: 100
+  replicas: 6
 
   selector:
     matchLabels:
