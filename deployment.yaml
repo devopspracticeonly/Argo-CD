@@ -29,5 +29,5 @@ spec:
         - containerPort: 8080
         resources:
           requests:
-             cpu: "100"
-             memory: "500Gi"
+             cpu: "100m"
+             memory: "500Mi"
