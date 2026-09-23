@@ -6,7 +6,7 @@ metadata:
 
 spec:
   selector:
-    app: myapp
+    app: wrong-app
 
   ports:
   - port: 80
