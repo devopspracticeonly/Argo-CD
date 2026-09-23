@@ -19,6 +19,10 @@ spec:
     spec:
       containers:
       - name: myapp
-        image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:37
+        image: busybox #736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:37
+        command:
+          - sh
+          - -c
+          - "exit 1"
         ports:
         - containerPort: 8080
