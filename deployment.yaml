@@ -23,6 +23,6 @@ spec:
         command:
           - sh
           - -c
-          - "exit 1"
+          - "sleep 3600"
         ports:
         - containerPort: 8080
