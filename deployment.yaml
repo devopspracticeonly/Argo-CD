@@ -11,23 +11,14 @@ metadata:
     description: "Advanced example Deployment for Kubernetes/EKS practice"
 
 spec:
-  # Desired number of Pod replicas
   replicas: 2
-
-  # Keep the last 5 ReplicaSets for rollout history/rollback
   revisionHistoryLimit: 5
-
-  # Wait at least 10 seconds after a Pod becomes ready before considering it available
   minReadySeconds: 10
-
-  # Rolling update strategy: update gradually without intentionally taking all Pods down
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-
-  # Deployment manages Pods whose template labels match this selector
   selector:
     matchLabels:
       app: myapp
@@ -43,18 +34,12 @@ spec:
         prometheus.io/scrape: "false"
 
     spec:
-      # Give the container time to stop gracefully during termination
       terminationGracePeriodSeconds: 30
-
-      # Avoid mounting the Kubernetes API token when the app does not need API access
       automountServiceAccountToken: false
-
-      # Pod-level security settings
       securityContext:
         seccompProfile:
           type: RuntimeDefault
 
-      # Prefer spreading replicas across different nodes when possible
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -67,26 +52,20 @@ spec:
 
       containers:
         - name: nginx
-          # Non-root NGINX image; listens on port 8080 by default
           image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:latest
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: nginx-cache
               mountPath: /var/cache/nginx
-          
           ports:
             - name: http
               containerPort: 8080
               protocol: TCP
-
-          # Environment variables for application configuration
           env:
             - name: APP_ENV
               value: "test"
             - name: PORT
               value: "8080"
-
-          # Container-level security settings
           securityContext:
             runAsNonRoot: false
             allowPrivilegeEscalation: false
@@ -94,12 +73,15 @@ spec:
             capabilities:
               drop:
                 - ALL
-                add:
+              add:
                 - CHOWN
-
-          # Startup probe allows extra time for a slow-starting container
           startupProbe:
-          
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
       volumes:
         - name: nginx-cache
           emptyDir: {}
