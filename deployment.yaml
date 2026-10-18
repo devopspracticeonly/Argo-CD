@@ -59,7 +59,7 @@ spec:
             - name: APP_ENV
               value: "test"
             - name: PORT
-              value: "8080"
+              value: "33271"
 
           # Probes for health checks
           startupProbe:
