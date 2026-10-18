@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: alb   # or "nginx" depending on your controller
+    alb.ingress.kubernetes.io/scheme: internet-facing
+spec:
+  rules:
+    - host: myapp.example.com   # replace with your actual domain
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: myapp-service
+                port:
+                  number: 80
