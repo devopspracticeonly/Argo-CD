@@ -8,7 +8,7 @@ metadata:
     app.kubernetes.io/part-of: eks-practice
     app.kubernetes.io/managed-by: kubectl
   annotations:
-    description: "Advanced example Deployment for Kubernetes/EKS practice"
+    description: "Deployment for Kubernetes/EKS practice"
 
 spec:
   replicas: 2
@@ -53,19 +53,19 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 80
               protocol: TCP
           env:
             - name: APP_ENV
               value: "test"
             - name: PORT
-              value: "8080"
+              value: "80"
 
           # Probes for health checks
           startupProbe:
             httpGet:
               path: /
-              port: 8080
+              port: 80
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 10
@@ -73,7 +73,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: 80
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 3
@@ -81,7 +81,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 8080
+              port: 80
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
