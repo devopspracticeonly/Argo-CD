@@ -75,6 +75,7 @@ spec:
                 - ALL
               add:
                 - CHOWN
+                - SETUID
           startupProbe:
             httpGet:
               path: /
