@@ -58,11 +58,11 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: "5m"
+              memory: "16Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "20m"
+              memory: "32Mi"
           env:
             - name: APP_ENV
               value: "test"
