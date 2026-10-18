@@ -36,9 +36,6 @@ spec:
     spec:
       terminationGracePeriodSeconds: 30
       automountServiceAccountToken: false
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
 
       affinity:
         podAntiAffinity:
@@ -66,16 +63,6 @@ spec:
               value: "test"
             - name: PORT
               value: "8080"
-          securityContext:
-            runAsNonRoot: false
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: false
-            capabilities:
-              drop:
-                - ALL
-              add:
-                - CHOWN
-                - SETUID
           startupProbe:
             httpGet:
               path: /
