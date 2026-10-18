@@ -85,7 +85,7 @@ spec:
 
           # Container-level security settings
           securityContext:
-            runAsNonRoot: true
+            runAsNonRoot: false
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             capabilities:
