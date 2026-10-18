@@ -65,7 +65,7 @@ spec:
           startupProbe:
             httpGet:
               path: /
-              port: http
+              port: 33271
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 10
@@ -73,7 +73,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: 33271
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 3
@@ -81,7 +81,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: 33271
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
