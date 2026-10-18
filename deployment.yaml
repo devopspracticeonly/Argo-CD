@@ -9,8 +9,6 @@ metadata:
     app.kubernetes.io/managed-by: kubectl
   annotations:
     description: "Deployment for Kubernetes/EKS practice"
-
-
 spec:
   replicas: 2
   revisionHistoryLimit: 5
@@ -23,7 +21,6 @@ spec:
   selector:
     matchLabels:
       app: myapp
-
   template:
     metadata:
       labels:
@@ -33,11 +30,9 @@ spec:
         app.kubernetes.io/part-of: eks-practice
       annotations:
         prometheus.io/scrape: "false"
-
     spec:
       terminationGracePeriodSeconds: 30
       automountServiceAccountToken: false
-
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -47,7 +42,6 @@ spec:
                 labelSelector:
                   matchLabels:
                     app: myapp
-
       containers:
         - name: nginx
           image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:latest
@@ -56,13 +50,18 @@ spec:
             - name: http
               containerPort: 80
               protocol: TCP
-          env:
-            - name: APP_ENV
-              value: "test"
-            - name: PORT
-              value: "80"
-
-          # Probes for health checks
+          envFrom:
+            - configMapRef:
+                name: myapp-config
+            - secretRef:
+                name: myapp-secret
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
           startupProbe:
             httpGet:
               path: /
@@ -70,7 +69,6 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 10
-
           livenessProbe:
             httpGet:
               path: /
@@ -78,7 +76,6 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 10
             failureThreshold: 3
-
           readinessProbe:
             httpGet:
               path: /
@@ -86,11 +83,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
             failureThreshold: 3
-
           volumeMounts:
             - name: nginx-cache
               mountPath: /var/cache/nginx
-
       volumes:
         - name: nginx-cache
           emptyDir: {}
+
+
