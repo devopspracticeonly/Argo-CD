@@ -68,7 +68,7 @@ spec:
       containers:
         - name: nginx
           # Non-root NGINX image; listens on port 8080 by default
-          image: nginxinc/nginx-unprivileged:stable-alpine
+          image: nginx:latest
           imagePullPolicy: IfNotPresent
 
           ports:
