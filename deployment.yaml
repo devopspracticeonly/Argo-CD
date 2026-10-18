@@ -3,10 +3,31 @@ kind: Deployment
 metadata:
   name: myapp
   namespace: default
+  labels:
+    app.kubernetes.io/name: myapp
+    app.kubernetes.io/part-of: eks-practice
+    app.kubernetes.io/managed-by: kubectl
+  annotations:
+    description: "Advanced example Deployment for Kubernetes/EKS practice"
 
 spec:
+  # Desired number of Pod replicas
   replicas: 2
 
+  # Keep the last 5 ReplicaSets for rollout history/rollback
+  revisionHistoryLimit: 5
+
+  # Wait at least 10 seconds after a Pod becomes ready before considering it available
+  minReadySeconds: 10
+
+  # Rolling update strategy: update gradually without intentionally taking all Pods down
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+
+  # Deployment manages Pods whose template labels match this selector
   selector:
     matchLabels:
       app: myapp
@@ -16,15 +37,60 @@ spec:
       labels:
         app: myapp
         env: test
+        app.kubernetes.io/name: myapp
+        app.kubernetes.io/part-of: eks-practice
+      annotations:
+        prometheus.io/scrape: "false"
 
     spec:
+      # Give the container time to stop gracefully during termination
+      terminationGracePeriodSeconds: 30
+
+      # Avoid mounting the Kubernetes API token when the app does not need API access
+      automountServiceAccountToken: false
+
+      # Pod-level security settings
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+
+      # Prefer spreading replicas across different nodes when possible
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchLabels:
+                    app: myapp
+
       containers:
-      - name: pod-name
-        image: nginx:latest
-       
-        ports:
-        - containerPort: 80
-        resources:
-          requests:
-             cpu: "10m"
-             memory: "50Mi"
+        - name: nginx
+          # Non-root NGINX image; listens on port 8080 by default
+          image: nginxinc/nginx-unprivileged:stable-alpine
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          # Environment variables for application configuration
+          env:
+            - name: APP_ENV
+              value: "test"
+            - name: PORT
+              value: "8080"
+
+          # Container-level security settings
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+          # Startup probe allows extra time for a slow-starting container
+          startupProbe:
