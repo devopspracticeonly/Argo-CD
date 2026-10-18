@@ -10,6 +10,7 @@ metadata:
   annotations:
     description: "Deployment for Kubernetes/EKS practice"
 
+
 spec:
   replicas: 2
   revisionHistoryLimit: 5
