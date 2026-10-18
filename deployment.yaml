@@ -70,7 +70,10 @@ spec:
           # Non-root NGINX image; listens on port 8080 by default
           image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:latest
           imagePullPolicy: IfNotPresent
-
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx
+          
           ports:
             - name: http
               containerPort: 8080
@@ -91,6 +94,12 @@ spec:
             capabilities:
               drop:
                 - ALL
+                add:
+                - CHOWN
 
           # Startup probe allows extra time for a slow-starting container
           startupProbe:
+          
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
