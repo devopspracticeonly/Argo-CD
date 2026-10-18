@@ -68,7 +68,7 @@ spec:
       containers:
         - name: nginx
           # Non-root NGINX image; listens on port 8080 by default
-          image: nginx:latest
+          image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:latest
           imagePullPolicy: IfNotPresent
 
           ports:
