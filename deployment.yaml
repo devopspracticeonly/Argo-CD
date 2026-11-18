@@ -1,3 +1,4 @@
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,20 +7,21 @@ metadata:
   labels:
     app.kubernetes.io/name: myapp
     app.kubernetes.io/part-of: eks-practice
-    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/managed-by: argocd
   annotations:
     description: "Deployment for Kubernetes/EKS practice"
-
 
 spec:
   replicas: 2
   revisionHistoryLimit: 5
   minReadySeconds: 10
+
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+
   selector:
     matchLabels:
       app: myapp
@@ -50,48 +52,46 @@ spec:
 
       containers:
         - name: nginx
-          #image: 736865445725.dkr.ecr.ap-south-1.amazonaws.com/microservice-demo:latest
-          image: nginx:latest
+          image: nginx:1.28
           imagePullPolicy: IfNotPresent
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+
           resources:
             requests:
-              cpu: "5m"
-              memory: "16Mi"
-            limits:
-              cpu: "20m"
+              cpu: "10m"
               memory: "32Mi"
+            limits:
+              cpu: "250m"
+              memory: "128Mi"
+
           env:
             - name: APP_ENV
               value: "test"
             - name: PORT
               value: "80"
 
-          # Probes for health checks
           startupProbe:
             httpGet:
               path: /
-              port: 80
-            initialDelaySeconds: 10
+              port: http
             periodSeconds: 5
             failureThreshold: 10
 
           livenessProbe:
             httpGet:
               path: /
-              port: 80
-            initialDelaySeconds: 15
+              port: http
             periodSeconds: 10
             failureThreshold: 3
 
           readinessProbe:
             httpGet:
               path: /
-              port: 80
-            initialDelaySeconds: 5
+              port: http
             periodSeconds: 5
             failureThreshold: 3
 
