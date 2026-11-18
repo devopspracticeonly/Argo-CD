@@ -1,0 +1,44 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: eks-practice-alerts
+  namespace: monitoring   # <-- Use the namespace where Prometheus is installed
+spec:
+  groups:
+  - name: practice-alerts
+    rules:
+    - alert: NodeDown
+      expr: up{job="kubernetes-nodes"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Node is down"
+        description: "Node {{ $labels.instance }} is not reporting metrics."
+
+    - alert: PodCrashLooping
+      expr: increase(kube_pod_container_status_restarts_total[5m]) > 1
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Pod is crash looping"
+        description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} is restarting."
+
+    - alert: HighCPUUsage
+      expr: (sum(rate(container_cpu_usage_seconds_total[2m])) BY (pod)) > 0.5
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High CPU usage"
+        description: "Pod {{ $labels.pod }} is using >50% CPU."
+
+    - alert: HighMemoryUsage
+      expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.5
+      for: 1m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High memory usage"
+        description: "Pod {{ $labels.pod }} is using >50% memory."
