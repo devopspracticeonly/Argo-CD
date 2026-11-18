@@ -1,65 +1,32 @@
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: myapp
   namespace: default
   labels:
-    app.kubernetes.io/name: myapp
-    app.kubernetes.io/part-of: eks-practice
-    app.kubernetes.io/managed-by: argocd
-  annotations:
-    description: "Deployment for Kubernetes/EKS practice"
-
+    app: myapp
 spec:
   replicas: 2
-  revisionHistoryLimit: 5
-  minReadySeconds: 10
-
+  selector:
+    matchLabels:
+      app: myapp
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
-
-  selector:
-    matchLabels:
-      app: myapp
-
   template:
     metadata:
       labels:
         app: myapp
-        env: test
-        app.kubernetes.io/name: myapp
-        app.kubernetes.io/part-of: eks-practice
-      annotations:
-        prometheus.io/scrape: "false"
-
     spec:
-      terminationGracePeriodSeconds: 30
-      automountServiceAccountToken: false
-
-      affinity:
-        podAntiAffinity:
-          preferredDuringSchedulingIgnoredDuringExecution:
-            - weight: 100
-              podAffinityTerm:
-                topologyKey: kubernetes.io/hostname
-                labelSelector:
-                  matchLabels:
-                    app: myapp
-
       containers:
         - name: nginx
           image: nginx:1.28
           imagePullPolicy: IfNotPresent
-
           ports:
             - name: http
               containerPort: 80
-              protocol: TCP
-
           resources:
             requests:
               cpu: "10m"
@@ -67,38 +34,22 @@ spec:
             limits:
               cpu: "250m"
               memory: "128Mi"
-
-          env:
-            - name: APP_ENV
-              value: "test"
-            - name: PORT
-              value: "80"
-
+          envFrom:
+            - configMapRef:
+                name: myapp-config
           startupProbe:
             httpGet:
               path: /
               port: http
             periodSeconds: 5
             failureThreshold: 10
-
           livenessProbe:
             httpGet:
               path: /
               port: http
             periodSeconds: 10
-            failureThreshold: 3
-
           readinessProbe:
             httpGet:
               path: /
               port: http
             periodSeconds: 5
-            failureThreshold: 3
-
-          volumeMounts:
-            - name: nginx-cache
-              mountPath: /var/cache/nginx
-
-      volumes:
-        - name: nginx-cache
-          emptyDir: {}

@@ -4,9 +4,11 @@ metadata:
   name: myapp-service
   namespace: default
 spec:
+  type: LoadBalancer
   selector:
     app: myapp
   ports:
-    - port: 80        # external port
-      targetPort: 80  # container port
-  type: LoadBalancer
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
