@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: patilr566/kubernetes-ci-cd-pipeline-main:latest
+          image: patilr566/the_educate_website:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
