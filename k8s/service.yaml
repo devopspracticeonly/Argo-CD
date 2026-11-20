@@ -9,6 +9,4 @@ spec:
     app: myapp
   ports:
     - name: http
-      port: 80
-      targetPort: 3000
-      protocol: TCP
+      port: 9191
