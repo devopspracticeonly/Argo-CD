@@ -4,10 +4,11 @@ metadata:
   name: myapp-service
   namespace: default
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
-    app: myapp # Must match your Deployment's pod labels
+    app: myapp
   ports:
-    - port: 80
-      targetPort: 8080 # Port your container listens on
-      nodePort: 30000   # Must match containerPort in kind-config.yaml
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
