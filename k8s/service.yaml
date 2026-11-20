@@ -4,11 +4,11 @@ metadata:
   name: myapp-service
   namespace: default
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: myapp
   ports:
     - name: http
       port: 80
-      targetPort: 80
+      targetPort: 3000
       protocol: TCP

@@ -6,4 +6,4 @@ metadata:
   namespace: default
 data:
   APP_ENV: "test"
-  PORT: "80"
+  PORT: "3000"
