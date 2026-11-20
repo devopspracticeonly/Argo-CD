@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: patilr566/the_educate_website:latest
+          image: bkimminich/juice-shop
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
