@@ -11,4 +11,4 @@ spec:
     - name: http
       protocol: TCP
       port: 9191
-      targetPort: 8080 #Intetionally incorrected
+      targetPort: 3000 #Intetionally incorrected
