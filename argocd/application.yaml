@@ -1,16 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: crashloop-lab
+  name: production-incident-002
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/YOUR-USERNAME/crashloop-lab.git
+    repoURL: https://github.com/YOUR-ACCOUNT/YOUR-REPO.git
     targetRevision: main
     path: k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: crashloop-demo
+    namespace: order-production
   syncPolicy:
-    syncOptions: [CreateNamespace=true]
+    syncOptions:
+    - CreateNamespace=true

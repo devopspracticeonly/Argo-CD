@@ -1,0 +1,23 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: order-availability
+  namespace: order-production
+  labels:
+    release: monitoring
+spec:
+  groups:
+  - name: order.rules
+    rules:
+    - alert: OrderApplicationAvailabilityDegraded
+      expr: 100 * sum(rate(http_requests_total{namespace="order-production",status=~"5.."}[2m]))
+        / clamp_min(sum(rate(http_requests_total{namespace="order-production"}[2m])),
+        0.000001) > 5
+      for: 2m
+      labels:
+        severity: warning
+        namespace: order-production
+        application: order-processing
+      annotations:
+        summary: Order requests failing
+        description: HTTP 5xx rate is {{ $value }} percent.

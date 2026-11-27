@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-probe
+  namespace: order-production
+data:
+  blackbox.yml: "modules:\n  http_2xx:\n    prober: http\n    timeout: 5s\n"

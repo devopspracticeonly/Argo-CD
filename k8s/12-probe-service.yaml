@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-probe
+  namespace: order-production
+spec:
+  selector:
+    app: order-probe
+  ports:
+  - name: http
+    port: 9115

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-probe
+  namespace: order-production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-probe
+  template:
+    metadata:
+      labels:
+        app: order-probe
+    spec:
+      containers:
+      - name: blackbox
+        image: prom/blackbox-exporter:v0.26.0
+        args:
+        - --config.file=/config/blackbox.yml
+        ports:
+        - containerPort: 9115
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        configMap:
+          name: order-probe
