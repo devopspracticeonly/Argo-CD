@@ -5,7 +5,7 @@ metadata:
   namespace: crashloop-demo
 data:
   settings.json: |
-    {"port": "eight-thousand", "currency": "INR"}
+    {"port": "8000", "currency": "INR"}
   app.py: |
     import json
     from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
