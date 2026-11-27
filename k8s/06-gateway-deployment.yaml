@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-gateway
+  namespace: crashloop-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app: payment-gateway}
+  template:
+    metadata:
+      labels: {app: payment-gateway}
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.28-alpine
+        ports:
+        - {name: http, containerPort: 80}
+        readinessProbe:
+          httpGet: {path: /healthz, port: http}
+        resources:
+          requests: {cpu: 25m, memory: 16Mi}
+          limits: {cpu: 200m, memory: 64Mi}
+        volumeMounts:
+        - {name: config, mountPath: /etc/nginx/conf.d}
+        - {name: logs, mountPath: /logs}
+      - name: metrics
+        image: python:3.12-alpine
+        command: [python, -u, /config/exporter.py]
+        ports:
+        - {name: metrics, containerPort: 9113}
+        resources:
+          requests: {cpu: 25m, memory: 24Mi}
+          limits: {cpu: 100m, memory: 64Mi}
+        volumeMounts:
+        - {name: config, mountPath: /config}
+        - {name: logs, mountPath: /logs}
+      volumes:
+      - name: config
+        configMap:
+          name: gateway-config
+          items:
+          - {key: default.conf, path: default.conf}
+          - {key: exporter.py, path: exporter.py}
+      - name: logs
+        emptyDir: {}
