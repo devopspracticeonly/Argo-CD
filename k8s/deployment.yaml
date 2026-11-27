@@ -1,56 +1,123 @@
 
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: timeout-demo
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myapp
-  namespace: default
-  labels:
-    app: myapp
+  name: slow-backend
+  namespace: timeout-demo
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: myapp
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 0
+      app: slow-backend
   template:
     metadata:
       labels:
-        app: myapp
+        app: slow-backend
+    spec:
+      containers:
+        - name: python
+          image: python:3.12-alpine
+          ports:
+            - containerPort: 8080
+          command: ["python", "-u", "-c"]
+          args:
+            - |
+              import time
+              from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+              class Handler(BaseHTTPRequestHandler):
+                  def do_GET(self):
+                      if self.path == "/slow":
+                          time.sleep(15)
+
+                      self.send_response(200)
+                      self.end_headers()
+
+                      try:
+                          self.wfile.write(b"Application is working")
+                      except BrokenPipeError:
+                          pass
+
+              ThreadingHTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: timeout-demo
+spec:
+  type: ClusterIP
+  selector:
+    app: slow-backend
+  ports:
+    - port: 80
+      targetPort: 8080
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: timeout-demo
+data:
+  default.conf: |
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://backend-service:80;
+            proxy_connect_timeout 5s;
+            proxy_send_timeout 5s;
+            proxy_read_timeout 5s;
+        }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-gateway
+  namespace: timeout-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-gateway
+  template:
+    metadata:
+      labels:
+        app: nginx-gateway
     spec:
       containers:
         - name: nginx
-          image: bkimminich/juice-shop
-          imagePullPolicy: IfNotPresent
+          image: nginx:alpine
           ports:
-            - name: http
-              containerPort: 3000 #80
-          resources:
-            requests:
-              cpu: "10m"
-              memory: "32Mi"
-            limits:
-              cpu: "250m"
-              memory: "128Mi"
-          envFrom:
-            - configMapRef:
-                name: myapp-config
-          startupProbe:
-            httpGet:
-              path: /
-              port: http
-            periodSeconds: 5
-            failureThreshold: 10
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-            periodSeconds: 10
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-            periodSeconds: 5
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway-service
+  namespace: timeout-demo
+spec:
+  type: ClusterIP
+  selector:
+    app: nginx-gateway
+  ports:
+    - port: 80
+      targetPort: 80
