@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-metrics-script
+  namespace: timeout-demo
+data:
+  exporter.py: "import time, json\nfrom prometheus_client import Counter, Histogram,\
+    \ start_http_server\nrequests = Counter('http_requests_total','Gateway requests',['status','method'])\n\
+    latency = Histogram('http_request_duration_seconds','Gateway latency',buckets=(.05,.1,.25,.5,1,2,5,6,10,15,20,30))\n\
+    for status in ('200','400','401','403','404','429','500','502','503','504'):\n\
+    \    requests.labels(status=status,method='GET')\nstart_http_server(9113)\nwhile\
+    \ True:\n    try:\n        f = open('/logs/metrics.log')\n        break\n    except\
+    \ FileNotFoundError: time.sleep(.5)\nwhile True:\n    line = f.readline()\n  \
+    \  if not line:\n        time.sleep(.2)\n        continue\n    try:\n        d=json.loads(line)\n\
+    \        requests.labels(status=str(d['status']),method=d['method']).inc()\n \
+    \       latency.observe(float(d['duration']))\n    except (ValueError,KeyError):\
+    \ pass\n"

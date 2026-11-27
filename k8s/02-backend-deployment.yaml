@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: slow-backend
+  namespace: timeout-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: slow-backend
+  template:
+    metadata:
+      labels:
+        app: slow-backend
+    spec:
+      containers:
+      - name: python
+        image: python:3.12-alpine
+        command:
+        - python
+        - -u
+        - -c
+        args:
+        - "import time\nfrom http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\n\
+          class Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        if\
+          \ self.path == '/slow': time.sleep(15)\n        self.send_response(200)\n\
+          \        self.end_headers()\n        try: self.wfile.write(b'Application\
+          \ is working')\n        except (BrokenPipeError, ConnectionResetError):\
+          \ pass\nThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 50m
+            memory: 32Mi
+          limits:
+            cpu: 500m
+            memory: 256Mi

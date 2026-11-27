@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-metrics-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+    - timeout-demo
+  selector:
+    matchLabels:
+      app: nginx-metrics
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 15s
