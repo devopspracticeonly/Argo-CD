@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: sre-blackbox-config
-  namespace: timeout-demo
-data:
-  blackbox.yml: "modules:\n  http_2xx:\n    prober: http\n    timeout: 10s\n    http:\n\
-    \      preferred_ip_protocol: ip4\n"

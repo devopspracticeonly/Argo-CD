@@ -1,38 +1,40 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: slow-backend
-  namespace: timeout-demo
+  name: backend
+  namespace: 503-demo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: slow-backend
+      app: backend
   template:
     metadata:
       labels:
-        app: slow-backend
+        app: backend
     spec:
       containers:
-      - name: python
+      - name: backend
         image: python:3.12-alpine
         command:
         - python
         - -u
         - -c
-        args:
-        - "import time\nfrom http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\n\
-          class Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        if\
-          \ self.path == '/slow': time.sleep(15)\n        self.send_response(200)\n\
-          \        self.end_headers()\n        try: self.wfile.write(b'Application\
-          \ is working')\n        except (BrokenPipeError, ConnectionResetError):\
-          \ pass\nThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
+        - "from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\nclass\
+          \ Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        status\
+          \ = 503 if self.path == '/overload' else 200\n        self.send_response(status)\n\
+          \        self.end_headers()\n        self.wfile.write(b'Service overloaded\\\
+          n' if status == 503 else b'Application is working\\n')\nThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
         ports:
         - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
         resources:
           requests:
             cpu: 50m
             memory: 32Mi
           limits:
             cpu: 500m
-            memory: 256Mi
+            memory: 128Mi
