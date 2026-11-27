@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-gateway
-  namespace: order-production
+  name: inventory-gateway
+  namespace: inventory-production
 spec:
   replicas: 1
   selector:
     matchLabels: &id001
-      app: order-gateway
+      app: inventory-gateway
   template:
     metadata:
       labels: *id001
     spec:
       containers:
-      - name: order-gateway
+      - name: inventory-gateway
         image: python:3.12-alpine
         command:
         - python
@@ -41,4 +41,4 @@ spec:
       volumes:
       - name: code
         configMap:
-          name: order-gateway-code
+          name: inventory-gateway-code

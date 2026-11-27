@@ -20,11 +20,11 @@ class Handler(BaseHTTPRequestHandler):
         else:
             start=time.monotonic()
             try:
-                with urlopen('http://order-api:8080/',timeout=3) as response:
+                with urlopen('http://inventory-api:8080/',timeout=3) as response:
                     status=response.status; body=response.read()
             except Exception as exc:
                 print(f'Upstream request failed: {exc}',flush=True)
-                status=503; body=b'Order service temporarily unavailable'
+                status=503; body=b'Inventory service temporarily unavailable'
             elapsed=time.monotonic()-start; content='application/json' if status==200 else 'text/plain'
             with lock:
                 counts[status]=counts.get(status,0)+1; total+=1; duration+=elapsed

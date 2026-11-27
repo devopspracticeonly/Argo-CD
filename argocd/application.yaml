@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: production-incident-002
+  name: production-incident-003
   namespace: argocd
 spec:
   project: default
@@ -11,7 +11,7 @@ spec:
     path: k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: order-production
+    namespace: inventory-production
   syncPolicy:
     syncOptions:
     - CreateNamespace=true

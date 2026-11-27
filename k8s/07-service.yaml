@@ -2,9 +2,9 @@ apiVersion: v1
 kind: Service
 metadata:
   name: frontend
-  namespace: order-production
+  namespace: inventory-production
   labels: &id001
-    app: order-gateway
+    app: inventory-gateway
 spec:
   selector: *id001
   ports:

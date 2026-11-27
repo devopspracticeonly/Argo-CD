@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: order-gateway-code
-  namespace: order-production
+  name: inventory-gateway-code
+  namespace: inventory-production
 data:
   app.py: "from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\nfrom\
     \ urllib.request import urlopen\nimport time, threading\nlock=threading.Lock()\n\
@@ -17,10 +17,10 @@ data:
     \ {duration}']\n            status=200; body=('\\n'.join(lines)+'\\n').encode();\
     \ content='text/plain; version=0.0.4'\n        elif self.path=='/healthz':\n \
     \           status=200; body=b'ok'; content='text/plain'\n        else:\n    \
-    \        start=time.monotonic()\n            try:\n                with urlopen('http://order-api:8080/',timeout=3)\
+    \        start=time.monotonic()\n            try:\n                with urlopen('http://inventory-api:8080/',timeout=3)\
     \ as response:\n                    status=response.status; body=response.read()\n\
     \            except Exception as exc:\n                print(f'Upstream request\
-    \ failed: {exc}',flush=True)\n                status=503; body=b'Order service\
+    \ failed: {exc}',flush=True)\n                status=503; body=b'Inventory service\
     \ temporarily unavailable'\n            elapsed=time.monotonic()-start; content='application/json'\
     \ if status==200 else 'text/plain'\n            with lock:\n                counts[status]=counts.get(status,0)+1;\
     \ total+=1; duration+=elapsed\n                for i,b in enumerate(bounds):\n\

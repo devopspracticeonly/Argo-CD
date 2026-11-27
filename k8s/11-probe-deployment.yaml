@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: order-probe
-  namespace: order-production
+  name: inventory-probe
+  namespace: inventory-production
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: order-probe
+      app: inventory-probe
   template:
     metadata:
       labels:
-        app: order-probe
+        app: inventory-probe
     spec:
       containers:
       - name: blackbox
@@ -26,4 +26,4 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: order-probe
+          name: inventory-probe

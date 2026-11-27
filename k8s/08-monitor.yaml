@@ -1,14 +1,14 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: order-gateway
-  namespace: order-production
+  name: inventory-gateway
+  namespace: inventory-production
   labels:
     release: monitoring
 spec:
   selector:
     matchLabels:
-      app: order-gateway
+      app: inventory-gateway
   endpoints:
   - port: http
     path: /metrics
