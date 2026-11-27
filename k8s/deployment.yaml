@@ -1,85 +1,4 @@
 
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: timeout-demo
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: slow-backend
-  namespace: timeout-demo
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: slow-backend
-  template:
-    metadata:
-      labels:
-        app: slow-backend
-    spec:
-      containers:
-        - name: python
-          image: python:3.12-alpine
-          ports:
-            - containerPort: 8080
-          command: ["python", "-u", "-c"]
-          args:
-            - |
-              import time
-              from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-
-              class Handler(BaseHTTPRequestHandler):
-                  def do_GET(self):
-                      if self.path == "/slow":
-                          time.sleep(15)
-
-                      self.send_response(200)
-                      self.end_headers()
-
-                      try:
-                          self.wfile.write(b"Application is working")
-                      except BrokenPipeError:
-                          pass
-
-              ThreadingHTTPServer(("0.0.0.0", 8080), Handler).serve_forever()
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: timeout-demo
-spec:
-  type: ClusterIP
-  selector:
-    app: slow-backend
-  ports:
-    - port: 80
-      targetPort: 8080
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: nginx-config
-  namespace: timeout-demo
-data:
-  default.conf: |
-    server {
-        listen 80;
-
-        location / {
-            proxy_pass http://backend-service:80;
-            proxy_connect_timeout 5s;
-            proxy_send_timeout 5s;
-            proxy_read_timeout 5s;
-        }
-    }
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -100,24 +19,35 @@ spec:
           image: nginx:alpine
           ports:
             - containerPort: 80
+              name: http
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d
+            - name: access-logs
+              mountPath: /logs
+
+        - name: metrics-exporter
+          image: python:3.12-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              pip install --no-cache-dir prometheus-client==0.22.1 &&
+              python -u /scripts/exporter.py
+          ports:
+            - containerPort: 9113
+              name: metrics
+          volumeMounts:
+            - name: access-logs
+              mountPath: /logs
+            - name: metrics-script
+              mountPath: /scripts
+
       volumes:
         - name: nginx-config
           configMap:
             name: nginx-config
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: gateway-service
-  namespace: timeout-demo
-spec:
-  type: ClusterIP
-  selector:
-    app: nginx-gateway
-  ports:
-    - port: 80
-      targetPort: 80
+        - name: metrics-script
+          configMap:
+            name: nginx-metrics-script
+        - name: access-logs
+          emptyDir: {}
