@@ -40,7 +40,7 @@ spec:
           readOnly: true
         env:
         - name: PROCESSING_INTERVAL
-          value: '3'
+          value: '0.02'
       volumes:
       - name: code
         configMap:
