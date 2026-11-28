@@ -1,47 +1,41 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: checkout-api
-  namespace: checkout-production
+  name: payment-api
+  namespace: payment-production
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels: &id001
-      app: checkout-api
+      app: payment-api
   template:
     metadata:
       labels: *id001
     spec:
       containers:
-      - name: checkout-api
+      - name: api
         image: python:3.12-alpine
         command:
         - python
-        - -u
-        - /app/app.py
+        - /app/server.py
         ports:
-        - name: http
-          containerPort: 8080
+        - containerPort: 8080
         resources:
           requests:
-            cpu: 50m
-            memory: 32Mi
+            cpu: 100m
+            memory: 64Mi
           limits:
-            cpu: 300m
+            cpu: 250m
             memory: 128Mi
         readinessProbe:
           httpGet:
-            path: /healthz
-            port: 8080
+            path: /health
+            port: 8081
           periodSeconds: 5
         volumeMounts:
-        - name: code
+        - name: source
           mountPath: /app
-          readOnly: true
-        env:
-        - name: PROCESSING_INTERVAL
-          value: '0.02'
       volumes:
-      - name: code
+      - name: source
         configMap:
-          name: checkout-api-code
+          name: payment-source

@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    release: monitoring
+  name: payment-availability
+  namespace: payment-production
+spec:
+  groups:
+  - name: payment.rules
+    rules:
+    - alert: PaymentApplicationAvailabilityLow
+      annotations:
+        summary: Payment application unavailable
+      expr: kube_deployment_status_replicas_available{namespace="payment-production",deployment="payment-api"}
+        == 0
+      for: 5m
+      labels:
+        severity: critical
