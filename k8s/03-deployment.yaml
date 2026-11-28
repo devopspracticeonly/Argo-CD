@@ -30,7 +30,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /health
-            port: 8081
+            port: 8080
           periodSeconds: 5
         volumeMounts:
         - name: source
