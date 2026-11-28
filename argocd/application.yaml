@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: production-incident-004
+  name: inc006
   namespace: argocd
 spec:
   project: default
   source:
-    repoURL: https://github.com/YOUR-ACCOUNT/YOUR-REPO.git
+    repoURL: https://github.com/devopspracticeonly/Argo-CD.git
     targetRevision: main
     path: k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: checkout-production
+    namespace: order-production-006
   syncPolicy:
     syncOptions:
     - CreateNamespace=true

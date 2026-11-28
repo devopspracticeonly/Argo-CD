@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend
+  namespace: order-production-006
+data:
+  server.py: "from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\n\
+    from urllib.request import urlopen\nfrom threading import Lock\nimport time\n\
+    lock=Lock(); counts={}; buckets=[.05,.1,.25,.5,1,2,5,10]; hist=[0]*len(buckets);\
+    \ total=0; elapsed=0\nclass Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n\
+    \        global total,elapsed\n        if self.path == '/metrics':\n         \
+    \   with lock:\n                lines=['# TYPE http_requests_total counter']+[f'http_requests_total{{status=\"\
+    {k}\"}} {v}' for k,v in counts.items()]\n                lines+=['# TYPE http_request_duration_seconds\
+    \ histogram']+[f'http_request_duration_seconds_bucket{{le=\"{b}\"}} {v}' for b,v\
+    \ in zip(buckets,hist)]+[f'http_request_duration_seconds_bucket{{le=\"+Inf\"}}\
+    \ {total}',f'http_request_duration_seconds_count {total}',f'http_request_duration_seconds_sum\
+    \ {elapsed}']\n            self.send_response(200); self.end_headers(); self.wfile.write(('\\\
+    n'.join(lines)+'\\n').encode()); return\n        start=time.monotonic()\n    \
+    \    try:\n            with urlopen('http://order-api:8080/',timeout=3) as response:\
+    \ body=response.read(); status=response.status\n        except Exception: status=503;\
+    \ body=b'Order service unavailable\\n'\n        duration=time.monotonic()-start\n\
+    \        with lock:\n            counts[status]=counts.get(status,0)+1; total+=1;\
+    \ elapsed+=duration\n            for i,b in enumerate(buckets): hist[i]+=int(duration<=b)\n\
+    \        self.send_response(status); self.end_headers(); self.wfile.write(body)\n\
+    ThreadingHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"

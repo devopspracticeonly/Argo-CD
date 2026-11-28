@@ -1,9 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: payment-source
-  namespace: payment-production
+  name: order-api
+  namespace: order-production-006
 data:
-  server.py: "from http.server import BaseHTTPRequestHandler, HTTPServer\nclass Handler(BaseHTTPRequestHandler):\n\
-    \    def do_GET(self):\n        self.send_response(200)\n        self.end_headers()\n\
-    \        self.wfile.write(b'Payment API available\\n')\nHTTPServer(('0.0.0.0',8080),Handler).serve_forever()\n"
+  server.py: "from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer\n\
+    class Handler(BaseHTTPRequestHandler):\n    def do_GET(self):\n        self.send_response(200)\n\
+    \        self.end_headers()\n        self.wfile.write(b\"Order API available\\\
+    n\")\nThreadingHTTPServer((\"0.0.0.0\",8080),Handler).serve_forever()\n"

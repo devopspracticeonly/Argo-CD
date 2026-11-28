@@ -1,11 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: payment-api
-  namespace: payment-production
+  name: order-api
+  namespace: order-production-006
+  labels:
+    app: order-api
 spec:
   selector:
-    app: payment-api
+    app: order-api
   ports:
-  - port: 80
-    targetPort: 8080
+  - name: http
+    port: 8080
+    targetPort: http
