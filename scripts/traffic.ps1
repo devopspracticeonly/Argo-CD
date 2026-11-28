@@ -1,4 +1,1 @@
-1..300 | ForEach-Object {
- curl.exe -s --max-time 8 -o NUL -w "%{http_code}\n" http://localhost:9898/
- Start-Sleep -Seconds 1
-}
+1..300 | ForEach-Object { curl.exe -s --max-time 10 -o NUL -w "%{http_code} %{time_total}s\n" http://localhost:9899/; Start-Sleep -Milliseconds 200 }

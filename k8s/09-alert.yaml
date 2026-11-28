@@ -1,24 +1,23 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: inventory-availability
-  namespace: inventory-production
+  name: checkout-availability
+  namespace: checkout-production
   labels:
     release: monitoring
 spec:
   groups:
-  - name: inventory.rules
+  - name: checkout.rules
     rules:
-    - alert: InventoryApplicationAvailabilityDegraded
-      expr: 100 * sum(rate(http_requests_total{namespace="inventory-production",status=~"5.."}[2m]))
-        / clamp_min(sum(rate(http_requests_total{namespace="inventory-production"}[2m])),
-        0.000001) > 5
+    - alert: CheckoutApplicationLatencyHigh
+      expr: histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{namespace="checkout-production"}[2m])))
+        > 0.5
       for: 2m
       labels:
         severity: warning
-        namespace: inventory-production
-        application: inventory-api
+        namespace: checkout-production
+        application: checkout-api
       annotations:
-        summary: Inventory requests failing
-        description: HTTP 5xx rate is {{ $value }} percent.
+        summary: Checkout requests are slow
+        description: P95 request latency is {{ $value }} seconds.
         dashboard: SRE | Production Incident Troubleshooting

@@ -1,18 +1,18 @@
 apiVersion: monitoring.coreos.com/v1
 kind: Probe
 metadata:
-  name: inventory-availability
-  namespace: inventory-production
+  name: checkout-availability
+  namespace: checkout-production
   labels:
     release: monitoring
 spec:
   interval: 15s
   module: http_2xx
   prober:
-    url: inventory-probe.inventory-production.svc.cluster.local:9115
+    url: checkout-probe.checkout-production.svc.cluster.local:9115
   targets:
     staticConfig:
       static:
-      - http://frontend.inventory-production.svc.cluster.local/
+      - http://frontend.checkout-production.svc.cluster.local/
       labels:
-        namespace: inventory-production
+        namespace: checkout-production

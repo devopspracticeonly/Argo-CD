@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: inventory-api
-  namespace: inventory-production
+  name: checkout-api
+  namespace: checkout-production
   labels:
-    app: inventory-api
+    app: checkout-api
 spec:
   selector:
-    app: inventory-api
+    app: checkout-api
   ports:
   - name: http
     port: 8080

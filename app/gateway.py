@@ -3,7 +3,7 @@ from urllib.request import urlopen
 import time, threading
 lock=threading.Lock()
 counts={s:0 for s in (200,502,503,504)}
-bounds=[.005,.01,.025,.05,.1,.25,.5,1,2,5,10]
+bounds=[.005,.01,.025,.05,.1,.25,.5,1,2,3,4,5,10]
 buckets=[0]*len(bounds)
 total=0; duration=0.0
 class Handler(BaseHTTPRequestHandler):
@@ -20,11 +20,11 @@ class Handler(BaseHTTPRequestHandler):
         else:
             start=time.monotonic()
             try:
-                with urlopen('http://inventory-api:8080/',timeout=3) as response:
+                with urlopen('http://checkout-api:8080/',timeout=8) as response:
                     status=response.status; body=response.read()
             except Exception as exc:
                 print(f'Upstream request failed: {exc}',flush=True)
-                status=503; body=b'Inventory service temporarily unavailable'
+                status=503; body=b'Checkout service temporarily unavailable'
             elapsed=time.monotonic()-start; content='application/json' if status==200 else 'text/plain'
             with lock:
                 counts[status]=counts.get(status,0)+1; total+=1; duration+=elapsed

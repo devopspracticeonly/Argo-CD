@@ -1,8 +1,10 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-import json
+import json, time, os
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
-        body=json.dumps({'inventorys':[{'id':101,'status':'confirmed'}]}).encode()
+        if self.path != "/healthz":
+            time.sleep(float(os.environ.get("PROCESSING_INTERVAL", "0.02")))
+        body=json.dumps({'checkouts':[{'id':101,'status':'confirmed'}]}).encode()
         self.send_response(200)
         self.send_header('Content-Type','application/json')
         self.send_header('Content-Length',str(len(body)))

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: inventory-probe
-  namespace: inventory-production
+  name: checkout-probe
+  namespace: checkout-production
 data:
   blackbox.yml: "modules:\n  http_2xx:\n    prober: http\n    timeout: 5s\n"

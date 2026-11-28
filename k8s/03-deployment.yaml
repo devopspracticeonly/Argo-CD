@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: inventory-api
-  namespace: inventory-production
+  name: checkout-api
+  namespace: checkout-production
 spec:
   replicas: 2
   selector:
     matchLabels: &id001
-      app: inventory-api
+      app: checkout-api
   template:
     metadata:
       labels: *id001
     spec:
       containers:
-      - name: inventory-api
+      - name: checkout-api
         image: python:3.12-alpine
         command:
         - python
@@ -31,14 +31,17 @@ spec:
             memory: 128Mi
         readinessProbe:
           httpGet:
-            path: /
+            path: /healthz
             port: 8080
           periodSeconds: 5
         volumeMounts:
         - name: code
           mountPath: /app
           readOnly: true
+        env:
+        - name: PROCESSING_INTERVAL
+          value: '3'
       volumes:
       - name: code
         configMap:
-          name: inventory-api-code
+          name: checkout-api-code

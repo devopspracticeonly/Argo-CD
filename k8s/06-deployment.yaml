@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: inventory-gateway
-  namespace: inventory-production
+  name: checkout-gateway
+  namespace: checkout-production
 spec:
   replicas: 1
   selector:
     matchLabels: &id001
-      app: inventory-gateway
+      app: checkout-gateway
   template:
     metadata:
       labels: *id001
     spec:
       containers:
-      - name: inventory-gateway
+      - name: checkout-gateway
         image: python:3.12-alpine
         command:
         - python
@@ -41,4 +41,4 @@ spec:
       volumes:
       - name: code
         configMap:
-          name: inventory-gateway-code
+          name: checkout-gateway-code
